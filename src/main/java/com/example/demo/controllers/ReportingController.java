@@ -1,5 +1,22 @@
 package com.example.demo.controllers;
 
+import com.example.demo.services.ReportingService;
+import com.example.demo.utils.PdfGeneratorUtils;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+
 @Slf4j
 @RestController
 @RequiredArgsConstructor
@@ -18,16 +35,8 @@ public class ReportingController {
                     content = @Content)})
     @GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> generatePdfFromHtml() {
-        if (!CustomConstant.dayList.contains(dayId)) {
-            log.warn("[ReportingController][generateBulletinInformation] bad parameter given : {}", dayId);
-            return ResponseEntity.badRequest().build();
-        }
-
-        String calculatedDateExtraction = DateUtils.getCurrentDate(dayId);
-        log.info("[ReportingController][generateBulletinInformation] by given day {}, calculated date extraction {}", dayId, calculatedDateExtraction);
-
         try {
-            String htmlContent = reportingService.prepareHtmlContent(codeSaison, calculatedDateExtraction);
+            String htmlContent = reportingService.prepareHtmlContent();
             byte[] pdfBytes = PdfGeneratorUtils.generatePdfFromHtml(htmlContent);
             return ResponseEntity.ok()
                     .header("Content-Type", "application/pdf")
