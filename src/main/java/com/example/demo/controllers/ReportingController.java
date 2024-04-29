@@ -18,14 +18,6 @@ public class ReportingController {
                     content = @Content)})
     @GetMapping(value = "/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> generatePdfFromHtml() {
-        if (!CustomConstant.dayList.contains(dayId)) {
-            log.warn("[ReportingController][generateBulletinInformation] bad parameter given : {}", dayId);
-            return ResponseEntity.badRequest().build();
-        }
-
-        String calculatedDateExtraction = DateUtils.getCurrentDate(dayId);
-        log.info("[ReportingController][generateBulletinInformation] by given day {}, calculated date extraction {}", dayId, calculatedDateExtraction);
-
         try {
             String htmlContent = reportingService.prepareHtmlContent(codeSaison, calculatedDateExtraction);
             byte[] pdfBytes = PdfGeneratorUtils.generatePdfFromHtml(htmlContent);
